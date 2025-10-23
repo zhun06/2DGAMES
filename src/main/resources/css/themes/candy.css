@@ -1,0 +1,8 @@
+.root {
+    -fx-background-image: url("/images/candyBG.jpg");
+    -fx-background-size: cover;      /* scale to fill */
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+
+}
+
