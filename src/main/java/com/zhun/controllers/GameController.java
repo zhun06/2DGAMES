@@ -37,7 +37,7 @@ public class GameController {
     private Button playAgainBtn, themeBtn, exitBtn3;
 
     @FXML
-    private void initialize ()  throws IOException {
+    private void initialize () throws IOException {
         // Block focus
         pauseBtn.setFocusTraversable(false);
         restartBtn1.setFocusTraversable(false);
@@ -94,7 +94,10 @@ public class GameController {
         Stage stage = SceneManager.getStage();
         root.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
             switch (key.getCode()) {
-                case F -> stage.setFullScreen(!stage.isFullScreen());
+                case F -> {
+                    stage.setFullScreen(!stage.isFullScreen());
+                    System.out.println((stage.isFullScreen() + "FULLSCREEN TRIGGERED"));
+                }
             }
         });
     }

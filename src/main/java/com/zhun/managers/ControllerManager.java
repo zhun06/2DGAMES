@@ -58,7 +58,7 @@ public class ControllerManager {
         // Start Game
         switch (choice) {
             case SNAKE -> GameManager.startSnake();
-//            case TETRIS -> GameManager.startTetris();
+            case TETRIS -> GameManager.startTetris();
 //            case PACMAN ->  GameManager.startPacman();
         }
     }
@@ -67,8 +67,5 @@ public class ControllerManager {
     public static Parent getHomeRoot() {return homeRoot;}
     public static Parent getThemeRoot() {return themeRoot;}
     public static Parent getGameRoot() {return gameRoot;}
-    public static HomeController getHomeController() {return homeController;}
-    public static ThemeController getThemeController() {return themeController;}
-    public static GameController getGameController() {return gameController;}
 
 }

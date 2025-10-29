@@ -1,4 +1,4 @@
-package com.zhun.snake;
+package com.zhun.games;
 
 import com.zhun.util.Point;
 
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 // Only game logic, no rendering
-public class SnakeGame {
+public class SnakeGame extends Game {
     // Grid & sizing
     public static final int BOX_SIZE = 40;
     public static final int WIDTH = 600;
@@ -18,13 +18,12 @@ public class SnakeGame {
     // Game state
     private final List<Point> snake = new ArrayList<>(); // head is index 0
     private Point food;
-    private Direction currentDirection = Direction.RIGHT;
-    private boolean growNextUpdate = false;
+    private Direction currentDirection;
+    private boolean growNextUpdate;
     private final Random rand = new Random();
-
-    private int score = 0;
+    private int score;
     private int highScore = 0;
-    private boolean gameOver = false;
+    private boolean gameOver;
 
     public enum Direction { UP, DOWN, LEFT, RIGHT }
 

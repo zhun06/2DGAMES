@@ -7,6 +7,7 @@ import com.zhun.managers.ControllerManager;
 import static com.zhun.util.GameChoice.*;
 
 import com.zhun.managers.SceneManager;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -22,7 +23,7 @@ import javafx.stage.Stage;
 // Controls landing page
 public class HomeController {
     @FXML
-    private Button prevBtn, nextBtn, themeBtn, startBtn;
+    private Button prevBtn, nextBtn, themeBtn, startBtn, quitBtn;
 
     @FXML
     private ImageView gamePreview;
@@ -37,6 +38,7 @@ public class HomeController {
         nextBtn.setFocusTraversable(false);
         themeBtn.setFocusTraversable(false);
         startBtn.setFocusTraversable(false);
+        quitBtn.setFocusTraversable(false);
 
         // Clip for rounded corners
         Rectangle clip = new Rectangle();
@@ -77,6 +79,9 @@ public class HomeController {
         if (event.getSource() == startBtn) {
             this.startBtn();
         }
+        if (event.getSource() == quitBtn) {
+            this.quitBtn();
+        }
     }
 
     public void addKeyHandler() {
@@ -94,7 +99,7 @@ public class HomeController {
                     if (currentIndex >= images.size()) currentIndex = 0; // wrap around
                     gamePreview.setImage(images.get(currentIndex)); // Update themePreview
                 }
-                case C -> {
+                case C, T -> {
                     try {
                         this.themeBtn();
                     } catch (IOException e) {
@@ -104,6 +109,13 @@ public class HomeController {
                 case SPACE, ENTER, S -> {
                     try {
                         this.startBtn();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                case E, Q -> {
+                    try {
+                        this.quitBtn();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -122,8 +134,10 @@ public class HomeController {
     private void startBtn() throws IOException {
         switch (currentIndex) {
             case 0 -> ControllerManager.callGameController(SNAKE);
-//            case 1 -> ControllerManager.gameController(TETRIS);
-//            case 2 -> ControllerManager.gameController(PACMAN);
+            case 1 -> ControllerManager.callGameController(TETRIS);
+//            case 2 -> ControllerManager.callGameController(PACMAN);
         }
     }
+    @FXML
+    private void quitBtn() throws IOException {Platform.exit();}
 }

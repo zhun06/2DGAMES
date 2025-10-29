@@ -36,8 +36,9 @@
             </HBox>
             <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="1000.0" spacing="50.0">
                <children>
-                  <Button fx:id="themeBtn" mnemonicParsing="false" onAction="#onButtonClick" text="CHANGE THEME" />
                   <Button fx:id="startBtn" mnemonicParsing="false" onAction="#onButtonClick" text="START GAME" />
+                  <Button fx:id="themeBtn" mnemonicParsing="false" onAction="#onButtonClick" text="CHANGE THEME" />
+                  <Button fx:id="quitBtn" mnemonicParsing="false" onAction="#onButtonClick" text="QUIT GAME" />
                </children>
             </HBox>
          </children>

@@ -1,11 +1,13 @@
 package com.zhun.managers;
 
-import com.zhun.snake.SnakeGame;
+import com.zhun.games.Game;
+import com.zhun.games.SnakeGame;
+import com.zhun.games.TetrisGame;
 import com.zhun.util.GameChoice;
 
+import com.zhun.util.GameState;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyEvent;
 
 import java.io.IOException;
@@ -13,9 +15,7 @@ import java.io.IOException;
 
 // Add or remove event handlers based on game state
 public class GameKeyHandlerManager {
-    // FXML
     private final Parent gameRoot; // Game root
-    private final Canvas gameCanvas; // Game canvas
 
     // Event handlers
     private EventHandler<KeyEvent> snakeHandler, tetrisHandler, pacmanHandler; // Specific handlers
@@ -23,37 +23,54 @@ public class GameKeyHandlerManager {
 
     // Games
     private SnakeGame snakeGame;
-//    private TetrisGame tetrisGame;
+    private TetrisGame tetrisGame;
 //    private PacmanGame pacmanGame;
 
     // Current game
     private GameChoice currentGameChoice;
+    private GameState currentGameState;
 
     // Constructor
-    public GameKeyHandlerManager(Canvas canvas) {
+    public GameKeyHandlerManager() {
         gameRoot = ControllerManager.getGameRoot();
-        gameCanvas = canvas;
         this.setOnPauseHandler();
         this.setOnGameOverHandler();
     }
 
-    // Initialize
-    public void initKeyHandler() {
+    public void initialize(Game currentGame) {
         currentGameChoice = GameManager.getCurrentGameChoice();
+
         switch(currentGameChoice) {
             case SNAKE -> {
                 if(snakeHandler == null) {
-                    this.snakeGame = GameManager.getSnakeGame();
+                    this.snakeGame = (SnakeGame)currentGame;
                     this.setSnakeHandler(snakeGame);
                 }}
-//            case TETRIS -> {if(tetrisHandler == null) this.setTetrisHandler(tetrisGame);}
+            case TETRIS -> {
+                if(tetrisHandler == null) {
+                    this.tetrisGame = (TetrisGame)currentGame;
+                    this.setTetrisHandler(tetrisGame);
+                }}
 //            case PACMAN -> {if(pacmanHandler == null) this.setPacmanHandler(pacmanGame);}
         }
-        this.inGame();
+    }
+
+    public void update() {
+        currentGameState = GameManager.getCurrentGameState();
+
+        switch (currentGameState) {
+            case START -> this.onStart();
+            case PAUSE -> this.onPause();
+            case RESUME -> this.onResume();
+            case RESTART, EXIT -> this.onRestartOrExit();
+            case GAMEOVER -> this.onGameOver();
+            case CHANGETHEME ->  this.onChangeTheme();
+        }
     }
 
     // In Game
-    public void inGame() {
+    public void onStart() {
+        System.out.println("INSIDE UPDATE GAME HANDLER ON START");
         this.attachGameHandler();
     }
 
@@ -69,14 +86,13 @@ public class GameKeyHandlerManager {
         this.attachGameHandler();
     }
 
-    // Restart Game
-    public void onRestart() {
+    // Restart Game || Exit || Game Over
+    public void onRestartOrExit() {
         this.detachGameHandler();
         this.detachHandler(onPauseHandler);
         this.detachHandler(onGameOverHandler);
     }
 
-    // Game Over
     public void onGameOver() {
         this.detachGameHandler();
         this.attachHandler(onGameOverHandler);
@@ -85,16 +101,11 @@ public class GameKeyHandlerManager {
     // Change Theme
     public void onChangeTheme() {this.detachHandler(onGameOverHandler);}
 
-    // Exit Game
-    public void onExit() {this.detachHandler(onGameOverHandler);}
-
-
+    // Generic key handlers
     public void attachHandler(EventHandler<KeyEvent> handler) {
-        gameRoot.removeEventHandler(KeyEvent.KEY_PRESSED, handler); // Remove if it was already attached
         gameRoot.addEventHandler(KeyEvent.KEY_PRESSED, handler);
     }
 
-    // Generic key handlers
     public void detachHandler(EventHandler<KeyEvent> handler) {
         gameRoot.removeEventHandler(KeyEvent.KEY_PRESSED, handler);
     }
@@ -103,16 +114,16 @@ public class GameKeyHandlerManager {
     public void attachGameHandler() {
         switch (currentGameChoice) {
             case SNAKE -> gameRoot.addEventHandler(KeyEvent.KEY_PRESSED, snakeHandler);
-            case TETRIS ->  gameRoot.addEventHandler(KeyEvent.KEY_PRESSED, tetrisHandler);
-            case PACMAN ->  gameRoot.addEventHandler(KeyEvent.KEY_PRESSED, pacmanHandler);
+            case TETRIS -> gameRoot.addEventHandler(KeyEvent.KEY_PRESSED, tetrisHandler);
+            case PACMAN -> gameRoot.addEventHandler(KeyEvent.KEY_PRESSED, pacmanHandler);
         }
     }
 
     public void detachGameHandler() {
         switch (currentGameChoice) {
             case SNAKE -> gameRoot.removeEventHandler(KeyEvent.KEY_PRESSED, snakeHandler);
-            case TETRIS ->  gameRoot.removeEventHandler(KeyEvent.KEY_PRESSED, tetrisHandler);
-            case PACMAN ->  gameRoot.removeEventHandler(KeyEvent.KEY_PRESSED, pacmanHandler);
+            case TETRIS -> gameRoot.removeEventHandler(KeyEvent.KEY_PRESSED, tetrisHandler);
+            case PACMAN -> gameRoot.removeEventHandler(KeyEvent.KEY_PRESSED, pacmanHandler);
         }
     }
 
@@ -124,9 +135,31 @@ public class GameKeyHandlerManager {
                 case DOWN, S -> snakeGame.setDirection(SnakeGame.Direction.DOWN);
                 case LEFT, A -> snakeGame.setDirection(SnakeGame.Direction.LEFT);
                 case RIGHT, D -> snakeGame.setDirection(SnakeGame.Direction.RIGHT);
-                case SPACE, ENTER, P -> GameManager.pauseGame();
-                case R -> GameManager.restartGame();
-                case ESCAPE, E, Q -> {
+                case SPACE, ENTER -> GameManager.pauseGame();
+                case R, P-> GameManager.restartGame();
+                case E, Q -> {
+                    try {
+                        GameManager.exitGame();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        };
+    }
+
+    public void setTetrisHandler(TetrisGame tetrisGame) {
+        this.tetrisGame = tetrisGame;
+        tetrisHandler = event -> {
+            switch (event.getCode()) {
+                case UP, W -> tetrisGame.setKey(TetrisGame.Key.UP);
+                case DOWN, S -> tetrisGame.setKey(TetrisGame.Key.DOWN);
+                case LEFT, A -> tetrisGame.setKey(TetrisGame.Key.LEFT);
+                case RIGHT, D -> tetrisGame.setKey(TetrisGame.Key.RIGHT);
+                case TAB, ENTER -> tetrisGame.setKey(TetrisGame.Key.TAB);
+                case SPACE ->  GameManager.pauseGame();
+                case R, P-> GameManager.restartGame();
+                case E, Q -> {
                     try {
                         GameManager.exitGame();
                     } catch (IOException e) {
@@ -147,8 +180,8 @@ public class GameKeyHandlerManager {
                         throw new RuntimeException(e);
                     }
                 }
-                case R -> GameManager.restartGame();
-                case ESCAPE, E, Q -> {
+                case P, R -> GameManager.restartGame();
+                case E, Q -> {
                     try {
                         GameManager.exitGame();
                     } catch (IOException e) {
@@ -162,15 +195,15 @@ public class GameKeyHandlerManager {
     public void setOnGameOverHandler() {
         this.onGameOverHandler = keyEvent -> {
             switch (keyEvent.getCode()) {
-                case SPACE, ENTER, P -> GameManager.restartGame();
-                case C -> {
+                case SPACE, ENTER, P, R -> GameManager.restartGame();
+                case C, T -> {
                     try {
                         GameManager.changeTheme();
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 }
-                case ESCAPE, E, Q -> {
+                case E, Q -> {
                     try {
                         GameManager.exitGame();
                     } catch (IOException e) {
@@ -181,5 +214,4 @@ public class GameKeyHandlerManager {
         };
     }
 
-    public void focusCanvas() {gameCanvas.requestFocus();}
 }

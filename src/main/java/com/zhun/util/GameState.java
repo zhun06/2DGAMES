@@ -1,10 +1,12 @@
 package com.zhun.util;
 
 public enum GameState {
-    HOME,
-    THEME,
+    START,
     INGAME,
     PAUSE,
     RESUME,
-    GAMEOVER,;
+    GAMEOVER,
+    RESTART,
+    EXIT,
+    CHANGETHEME
 }

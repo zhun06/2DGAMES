@@ -1,6 +1,5 @@
 package com.zhun;
 
-import com.zhun.controllers.HomeController;
 import com.zhun.managers.ControllerManager;
 import com.zhun.managers.SceneManager;
 import javafx.application.Application;
